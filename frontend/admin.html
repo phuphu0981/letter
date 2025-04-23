@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phong bì đặc biệt</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: url('../Gemini_Generated_Image_12b6bf12b6bf12b6.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Phong bì */
+        .envelope-container {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background-color: #ff6f61;
+            position: relative;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            z-index: 2;
+        }
+
+        .envelope:hover {
+            transform: scale(1.05);
+        }
+
+        .envelope:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #ff3d3d;
+            z-index: 3;
+        }
+
+        .envelope.open {
+            transform: scale(0.9);
+            opacity: 0.7;
+            filter: blur(2px);
+            cursor: default;
+        }
+
+        .envelope.open:before {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+
+        .envelope:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid #ff8a80;
+            z-index: 2;
+        }
+
+        .heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            clip-path: path('M24.5 3.5c-5.5 0-10 4.5-10 10 0 5.5 10 15 10 15s10-9.5 10-15c0-5.5-4.5-10-10-10z');
+        }
+
+        .envelope-content {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background: white;
+            top: 5%;
+            left: 5%;
+            border-radius: 2px;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* Bức thư */
+        .letter-container {
+            background-color: #fff;
+            width: 80%;
+            max-width: 600px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            border: 1px solid #e0e0e0;
+            transform: scale(0.5) translateY(200px);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10;
+            top: 50%;
+            left: 50%;
+            margin-left: -300px;
+            margin-top: -250px;
+        }
+
+        .letter-container.show {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .letter-content {
+            line-height: 1.6;
+            font-size: 18px;
+            color: #444;
+            min-height: 200px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            white-space: pre-wrap;
+        }
+
+        .signature {
+            font-style: italic;
+            margin-top: 30px;
+            text-align: right;
+            color: #666;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 20px;
+            background-color: #333;
+            animation: blink 0.7s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            opacity: 0.8;
+        }
+
+        /* Hiệu ứng giấy nhảy ra */
+        .paper-piece {
+            position: absolute;
+            background-color: white;
+            border-radius: 2px;
+            z-index: 5;
+            transform-origin: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="envelope-container">
+        <div class="envelope">
+            <div class="heart"></div>
+            <div class="envelope-content">Mở thư</div>
+        </div>
+    </div>
+
+    <div class="letter-container" id="letter-container">
+        <img src="https://cdn.pixabay.com/photo/2017/01/31/23/42/decorative-2028039_640.png" alt="Tem thư" class="stamp">
+        <div class="letter-header">
+            <h2>Thư gửi bạn ❤️</h2>
+            <p>Ngày <span id="current-date"></span></p>
+        </div>
+        <div class="letter-content" id="letter-text"></div>
+        <div class="signature" id="signature"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const envelope = document.querySelector('.envelope');
+            const envelopeContainer = document.querySelector('.envelope-container');
+            const letterContainer = document.getElementById('letter-container');
+            
+            // Hiển thị ngày hiện tại
+            const today = new Date();
+            const dateStr = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+            document.getElementById('current-date').textContent = dateStr;
+
+            // Nội dung bức thư
+            const letterContent = "Gửi bạn thân mến,\n\nHôm nay mình viết thư này để gửi đến bạn những lời chúc tốt đẹp nhất. Dù chúng ta có thể không gặp nhau thường xuyên, nhưng tình bạn của chúng ta vẫn luôn bền chặt.\n\nHy vọng bạn luôn mạnh khỏe, hạnh phúc và thành công trong cuộc sống. Hãy luôn giữ liên lạc nhé!\n\nTrân trọng,";
+            const signature = "Người bạn của bạn";
+
+            const letterElement = document.getElementById('letter-text');
+            const signatureElement = document.getElementById('signature');
+            
+            // Hiệu ứng mở phong bì
+            envelope.addEventListener('click', function() {
+                if (this.classList.contains('open')) return;
+                
+                // Mở phong bì
+                this.classList.add('open');
+                
+                // Tạo hiệu ứng giấy nhảy ra
+                createPaperPieces();
+                
+                // Hiện bức thư với hiệu ứng nhảy ra
+                setTimeout(() => {
+                    letterContainer.classList.add('show');
+                    
+                    // Bắt đầu hiệu ứng đánh máy
+                    setTimeout(typeWriter, 500);
+                }, 300);
+            });
+
+            // Tạo hiệu ứng giấy nhảy ra từ phong bì
+            function createPaperPieces() {
+                const envelopeRect = envelopeContainer.getBoundingClientRect();
+                const centerX = envelopeRect.left + envelopeRect.width / 2;
+                const centerY = envelopeRect.top + envelopeRect.height / 2;
+                
+                for (let i = 0; i < 5; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'paper-piece';
+                    
+                    // Kích thước ngẫu nhiên
+                    const size = Math.random() * 50 + 30;
+                    piece.style.width = `${size}px`;
+                    piece.style.height = `${size * 1.4}px`;
+                    
+                    // Vị trí bắt đầu (trung tâm phong bì)
+                    piece.style.left = `${centerX - size/2}px`;
+                    piece.style.top = `${centerY - size/2}px`;
+                    
+                    // Màu sắc
+                    piece.style.backgroundColor = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.5})`;
+                    
+                    document.body.appendChild(piece);
+                    
+                    // Hiệu ứng bay ra
+                    setTimeout(() => {
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = Math.random() * 200 + 100;
+                        const targetX = centerX + Math.cos(angle) * distance - size/2;
+                        const targetY = centerY + Math.sin(angle) * distance - size/2;
+                        
+                        piece.style.transition = `all 0.8s cubic-bezier(0.25, 1, 0.5, 1)`;
+                        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+                        piece.style.left = `${targetX}px`;
+                        piece.style.top = `${targetY}px`;
+                        piece.style.opacity = '0';
+                        
+                        // Xóa sau khi hiệu ứng kết thúc
+                        setTimeout(() => {
+                            piece.remove();
+                        }, 1000);
+                    }, 10);
+                }
+            }
+
+            // Hiệu ứng đánh máy
+            let i = 0;
+            let j = 0;
+            const speed = 30;
+
+            function typeWriter() {
+                if (i < letterContent.length) {
+                    if (letterElement.querySelector('.cursor')) {
+                        letterElement.removeChild(letterElement.querySelector('.cursor'));
+                    }
+                    
+                    letterElement.innerHTML += letterContent.charAt(i);
+                    i++;
+                    
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    letterElement.appendChild(cursor);
+                    
+                    setTimeout(typeWriter, speed);
+                } else {
+                    if (letterElement.querySelector('.cursor')) {
+                        letterElement.removeChild(letterElement.querySelector('.cursor'));
+                    }
+                    typeSignature();
+                }
+            }
+
+            function typeSignature() {
+                if (j < signature.length) {
+                    if (signatureElement.querySelector('.cursor')) {
+                        signatureElement.removeChild(signatureElement.querySelector('.cursor'));
+                    }
+                    
+                    signatureElement.innerHTML += signature.charAt(j);
+                    j++;
+                    
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    signatureElement.appendChild(cursor);
+                    
+                    setTimeout(typeSignature, speed);
+                } else {
+                    if (signatureElement.querySelector('.cursor')) {
+                        signatureElement.removeChild(signatureElement.querySelector('.cursor'));
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
