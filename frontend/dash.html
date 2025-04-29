@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: url('../Gemini_Generated_Image_12b6bf12b6bf12b6.jpg');
+      background-size: cover;
+      background-position: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .welcome-screen {
+      background-color: #e84b8c;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .welcome-screen h2 {
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .envelope-container {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+      margin: 0 auto; /* Center horizontally */
+    }
+
+    .envelope {
+      width: 300px;
+      height: 200px;
+      background-color: #ff6f61;
+      position: relative;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s;
+      z-index: 2;
+    }
+
+    .envelope:hover {
+      transform: scale(1.05);
+    }
+
+    .envelope:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-top: 100px solid #ff3d3d;
+      z-index: 3;
+    }
+
+    .envelope.open {
+      transform: scale(0.9);
+      opacity: 0.7;
+      filter: blur(2px);
+      cursor: default;
+    }
+
+    .envelope.open:before {
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
+
+    .envelope:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 100px solid #ff8a80;
+      z-index: 2;
+    }
+
+    .heart {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      clip-path: path('M24.5 3.5c-5.5 0-10 4.5-10 10 0 5.5 10 15 10 15s10-9.5 10-15c0-5.5-4.5-10-10-10z');
+    }
+
+    .envelope-content {
+      position: absolute;
+      width: 90%;
+      height: 90%;
+      background: white;
+      top: 5%;
+      left: 5%;
+      border-radius: 2px;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: #333;
+      text-align: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .letter-container {
+      display: none; /* Hide the letter-container initially */
+      background-color: #fdfde3; /* Light paper-like color */
+      background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+      background-size: 100% 24px; /* Line spacing for paper effect */
+      width: 80%;
+      max-width: 600px;
+      padding: 40px; /* Increase padding for a framed look */
+      border-radius: 15px; /* Slightly more rounded corners */
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); /* Stronger shadow for better emphasis */
+      position: fixed;
+      border: 4px solid #8b4513; /* Dark brown border for a clear frame */
+      transform: scale(0.5) translateY(200px);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 10;
+      top: 50%;
+      left: 50%;
+      margin-left: -300px;
+      margin-top: -250px;
+    }
+
+    .letter-container.show {
+      display: block; /* Show the letter-container when triggered */
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .letter-header {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .letter-content {
+      font-family: 'Courier New', Courier, monospace; /* Handwriting-like font */
+      line-height: 1.8; /* Adjust line height for better readability */
+      color: #444;
+      min-height: 200px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+      white-space: pre-wrap;
+    }
+
+    .signature {
+      font-style: italic;
+      margin-top: 30px;
+      text-align: right;
+      color: #666;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .bottom-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px; /* Increase top margin */
+      gap: 10px; /* Add spacing between buttons */
+    }
+
+    .bottom-buttons a {
+      text-decoration: none;
+      display: inline-flex; /* Use flex to center content */
+      justify-content: center;
+      align-items: center;
+      width: 120px; /* Set a fixed width */
+      height: 50px; /* Set a fixed height */
+      background-color: #e7b3c6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      transition: background-color 0.3s, transform 0.2s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      cursor: pointer; /* Ensure the pointer cursor is shown */
+    }
+
+    .bottom-buttons a:hover {
+      background-color: #ff3d3d;
+      transform: scale(1.05);
+    }
+
+    .bottom-buttons a:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-container {
+      display: none; /* Initially hidden */
+      background-color: #fff;
+      background-image: url('https://static.vecteezy.com/system/resources/previews/025/456/774/original/aesthetic-backgrounds-suitable-for-ppt-backgrounds-and-others-free-vector.jpg'); /* Add background image */
+      background-size: cover; /* Ensure the background covers the container */
+      background-position: center; /* Center the background image */
+      width: 80%;
+      max-width: 600px;
+      padding: 30px;
+      border-radius: 15px; /* Rounded corners */
+      border: 3px solid #ff6f61; /* Add a border */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Add shadow */
+      position: fixed;
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 10;
+      top: 50%;
+      left: 50%;
+    }
+
+    .profile-container.show {
+      display: block;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .profile-banner {
+      width: 100%;
+      height: auto;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .profile-body {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+      padding: 0 20px;
+    }
+
+    .avatar-container {
+      flex-shrink: 0;
+      margin-right: 20px;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #e0e0e0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-message {
+      font-size: 18px;
+      color: #444;
+      line-height: 1.6;
+      border: 2px solid #ff6f61;
+      border-radius: 10px;
+      padding: 15px;
+      background-color: #fff5f5;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .heart-icon {
+      margin-right: 10px;
+      font-size: 20px;
+      color: #ff6f61;
+    }
+
+    .close-profile-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.3s;
+    }
+
+    .close-profile-btn:hover {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-screen" id="welcomeScreen">
+    <h2>Read Me! Read Me! Read Me, pls!</h2>
+    <div class="envelope-container" id="envelopeContainer">
+        <img width="200" height="200" src="https://img.icons8.com/nolan/300/love-letter.png" alt="love-letter"/>    
+    </div>
+    <div class="bottom-buttons">
+      <a href="user.html">👤 Profile</a>
+      <a id="readMeButton">📩 Read Me</a>
+      <a href="exportphoto.html">📸 Our Memories</a>
+    </div>
+  </div>
+
+  <div class="letter-container" id="letter-container">
+    <button class="close-btn" id="closeLetter">✖</button>
+    <div class="letter-header">
+      <h2>Thư gửi bạn ❤️</h2>
+      <p>Ngày <span id="current-date"></span></p>
+    </div>
+    <div class="letter-content" id="letter-text"></div>
+    <div class="signature" id="signature"></div>
+  </div>
+
+  <div class="profile-container" id="profile-container">
+    <button class="close-profile-btn" id="closeProfile">✖</button>
+    <div class="profile-header">
+      <img src="https://tsnim.com/wp-content/uploads/2024/01/4K-Beautiful-Desktop-Wallpaper-Colorful-Nature-Sunset-Landscape-Free-Download-2048x1152.jpg" alt="Banner" class="profile-banner">
+    </div>
+    <div class="profile-body">
+      <div class="avatar-container">
+        <img src="https://img.meta.com.vn/Data/image/2021/09/22/anh-meo-cute-de-thuong-dang-yeu-42.jpg" alt="Avatar" class="profile-avatar">
+      </div>
+      <div class="profile-message">
+        <p><span class="heart-icon">❤️</span> lời yêu thương đến từ fjfjfjff</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const envelopeContainer = document.getElementById('envelopeContainer');
+      const letterContainer = document.getElementById('letter-container');
+      const closeLetter = document.getElementById('closeLetter');
+      const readMeButton = document.getElementById('readMeButton');
+
+      const today = new Date();
+      document.getElementById('current-date').textContent =
+        today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+
+      const letterContent =
+        "Gửi bạn thân mến,\n\nHôm nay mình viết thư này để gửi đến bạn những lời chúc tốt đẹp nhất. Hy vọng bạn luôn mạnh khỏe, hạnh phúc và thành công trong cuộc sống.\n\nTrân trọng,";
+      const signature = "Người bạn của bạn";
+
+      let isContentTyped = false; // Track if the content has already been typed
+
+      function showLetter() {
+        letterContainer.style.display = 'block'; // Ensure the letter is visible
+        setTimeout(() => {
+          letterContainer.classList.add('show');
+          if (!isContentTyped) {
+            typeWriter();
+            isContentTyped = true; // Mark content as typed
+          }
+        }, 10); // Add a slight delay to trigger the animation
+      }
+
+      envelopeContainer.addEventListener('click', showLetter);
+
+      readMeButton.addEventListener('click', showLetter);
+
+      closeLetter.addEventListener('click', function () {
+        letterContainer.classList.remove('show');
+        setTimeout(() => {
+          letterContainer.style.display = 'none'; // Hide after animation
+        }, 800);
+      });
+
+      let i = 0,
+        j = 0;
+      const speed = 30;
+
+      function typeWriter() {
+        if (i < letterContent.length) {
+          document.getElementById('letter-text').textContent += letterContent.charAt(i);
+          i++;
+          setTimeout(typeWriter, speed);
+        } else {
+          typeSignature();
+        }
+      }
+
+      function typeSignature() {
+        if (j < signature.length) {
+          document.getElementById('signature').textContent += signature.charAt(j);
+          j++;
+          setTimeout(typeSignature, speed);
+        }
+      }
+
+      const profileButton = document.querySelector('.bottom-buttons a[href="user.html"]');
+      const profileContainer = document.getElementById('profile-container');
+      const closeProfile = document.getElementById('closeProfile');
+
+      profileButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default link behavior
+        profileContainer.classList.add('show');
+      });
+
+      closeProfile.addEventListener('click', function () {
+        profileContainer.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
